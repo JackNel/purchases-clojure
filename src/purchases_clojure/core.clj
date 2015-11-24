@@ -1,5 +1,6 @@
 (ns purchases-clojure.core
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [clojure.walk :as walk])
   (:gen-class))
 
 (defn -main [& args]
@@ -16,4 +17,6 @@
         purchases (map (fn [line]
                          (apply hash-map line))
                        purchases)
+        purchases (walk/keywordize-keys purchases)
+
         ](pprint purchases)))
