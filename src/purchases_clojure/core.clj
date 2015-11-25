@@ -1,12 +1,14 @@
 (ns purchases-clojure.core
   (:require [clojure.string :as str]
             [clojure.walk :as walk]
-            [clojure.pprint :as pp])
+            [clojure.pprint :as pp]
+            [ring.adapter.jetty :as j]
+            [hiccup.core :as h])
 
   (:gen-class))
 
-(defn -main [& args]
-  (println "Enter a category: Furniture, Alcohol, Toiletries, Shoes, Food, or Jewelry.")
+(defn read-purchases []
+  ;(println "Enter a category: Furniture, Alcohol, Toiletries, Shoes, Food, or Jewelry.")
   (let [purchases (slurp "purchases.csv")
         purchases (str/split-lines purchases)
         purchases (map (fn [line]
@@ -22,9 +24,33 @@
                        purchases)
         purchases (walk/keywordize-keys purchases)
 
-        input (read-line)
-        purchases (filter (fn [line]
-                            (= input (:category line)))
-                          purchases)]
-        (spit (format "filtered_%s.edn" input)
-              (with-out-str (pp/pprint purchases)))))
+        ]
+    #_(spit (format "filtered_%s.edn" input)
+            (with-out-str (pp/pprint purchases)))
+    purchases))
+
+(defn purchases-html []
+  (let [purchases (read-purchases)]
+    (map (fn [line]
+           [:p
+            (str "Customer ID: "
+              (:customer_id line)
+                " Date: "
+                 (:date line)
+                 " Credit Card: "
+                 (:credit_card line)
+                 " CVV: "
+                 (:cvv line)
+                 " Category: "
+                 (:category line))])
+    purchases)))
+
+(defn handler [request]
+  {:status 200
+   :headers {"Content-Type" "text.html"}
+   :body (h/html [:html
+                  [:body
+                   (purchases-html)]])})
+
+(defn -main [& args]
+  (j/run-jetty #'handler {:port 3000 :join? false}))
