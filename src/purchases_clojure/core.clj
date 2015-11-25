@@ -26,5 +26,5 @@
         purchases (filter (fn [line]
                             (= input (:category line)))
                           purchases)]
-        (spit "filtered_purchases.edn"
+        (spit (format "filtered_%s.edn" input)
               (with-out-str (pp/pprint purchases)))))
