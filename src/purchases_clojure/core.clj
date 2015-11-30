@@ -23,26 +23,34 @@
                          (apply hash-map line))
                        purchases)
         purchases (walk/keywordize-keys purchases)
-
-        ]
+        ; input (read-line)
+        #_purchases #_(filter (fn [line]
+                            (= input (:category line)))
+                          purchases)]
     #_(spit (format "filtered_%s.edn" input)
             (with-out-str (pp/pprint purchases)))
     purchases))
+
+#_(defn purchase-item [purchase-map]
+  [:p
+   [:b (:category purchase-map)]
+   " "
+   [:i (:credit_card purchase-map)]])
 
 (defn purchases-html []
   (let [purchases (read-purchases)]
     (map (fn [line]
            [:p
-            (str "Customer ID: "
-              (:customer_id line)
-                " Date: "
-                 (:date line)
-                 " Credit Card: "
-                 (:credit_card line)
-                 " CVV: "
-                 (:cvv line)
-                 " Category: "
-                 (:category line))])
+            "Customer ID: "
+            (:customer_id line) [:br]
+            " Date: "
+            (:date line) [:br]
+            " Credit Card: "
+            (:credit_card line) [:br]
+            " CVV: "
+            (:cvv line) [:br]
+            " Category: "
+            (:category line) [:br]])
     purchases)))
 
 (defn handler [request]
